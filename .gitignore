@@ -1,0 +1,18 @@
+# Simulink models (not shared)
+model/
+
+# Simulink build artifacts
+slprj/
+scripts/slprj/
+*.slxc
+
+# MATLAB auto-generated files
+*.asv
+*.mex*
+*.mexw64
+
+# Copyright document
+EVCharger_Model_Specifications_2023-Dana_Robson.pdf
+
+# Claude Code local settings
+.claude/
