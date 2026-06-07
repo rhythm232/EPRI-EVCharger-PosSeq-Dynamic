@@ -1,0 +1,10 @@
+PDF search: EVCharger_Model_Specifications_2023-Dana_Robson.pdf
+Status: NOT FOUND
+Action: All model parameters are ASSUMPTIONS.
+        See epri_model_interpretation.md for details.
+
+Assumed key parameters:
+  Tv (voltage filter) = 0.020 s
+  UV threshold (A,B,C) = 0.70 pu
+  Cessation hold-off A/B/C = 0.30 / 0.15 / 0.50 s
+  Ramp time A/B/C = 0.50 / 0.70 / 1.00 s

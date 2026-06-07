@@ -1,0 +1,480 @@
+ 
+A Positive Sequence Model for Aggregated 
+Representation Electric Vehicle Chargers 
+EPCL Model Description 
+EPRI Project 1-116982 
+ 
+ 
+ 
+ 
+
+ 
+Lead Engineer: L. Sundaresh 
+Project Manager: P. Mitra 
+ 
+A Positive Sequence Model for Aggregated 
+Representation Electric Vehicle Chargers 
+EPCL Model Description 
+EPRI Project 1-116982 
+November 2022 
+ 
+ 
+Together…Shaping the Future of Energy® 
+© 2022 Electric Power Research Institute (EPRI), Inc. All rights reserved. Electric Power Research 
+Institute, EPRI, and TOGETHER…SHAPING THE FUTURE OF ENERGY are registered marks of the 
+Electric Power Research Institute, Inc. in the U.S. and worldwide. 
+ 
+DISCLAIMER OF WARRANTIES AND LIMITATION OF LIABILITIES 
+THIS DOCUMENT WAS PREPARED BY THE ORGANIZATION(S) NAMED BELOW AS AN ACCOUNT OF 
+WORK SPONSORED OR COSPONSORED BY THE ELECTRIC POWER RESEARCH INSTITUTE, INC. (EPRI). 
+NEITHER EPRI, ANY MEMBER OF EPRI, ANY COSPONSOR, THE ORGANIZATION(S) BELOW, NOR ANY 
+PERSON ACTING ON BEHALF OF ANY OF THEM: 
+(A) MAKES ANY WARRANTY OR REPRESENTATION WHATSOEVER, EXPRESS OR IMPLIED, (I) WITH 
+RESPECT TO THE USE OF ANY INFORMATION, APPARATUS, METHOD, PROCESS, OR SIMILAR ITEM 
+DISCLOSED IN THIS DOCUMENT, INCLUDING MERCHANTABILITY AND FITNESS FOR A PARTICULAR 
+PURPOSE, OR (II) THAT SUCH USE DOES NOT INFRINGE ON OR INTERFERE WITH PRIVATELY OWNED 
+RIGHTS, INCLUDING ANY PARTY'S INTELLECTUAL PROPERTY, OR (III) THAT THIS DOCUMENT IS 
+SUITABLE TO ANY PARTICULAR USER'S CIRCUMSTANCE; OR 
+(B) ASSUMES RESPONSIBILITY FOR ANY DAMAGES OR OTHER LIABILITY WHATSOEVER (INCLUDING 
+ANY CONSEQUENTIAL DAMAGES, EVEN IF EPRI OR ANY EPRI REPRESENTATIVE HAS BEEN ADVISED OF 
+THE POSSIBILITY OF SUCH DAMAGES) RESULTING FROM YOUR SELECTION OR USE OF THIS 
+DOCUMENT OR ANY INFORMATION, APPARATUS, METHOD, PROCESS, OR SIMILAR ITEM DISCLOSED IN 
+THIS DOCUMENT. 
+REFERENCE HEREIN TO ANY SPECIFIC COMMERCIAL PRODUCT, PROCESS, OR SERVICE BY ITS TRADE 
+NAME, TRADEMARK, MANUFACTURER, OR OTHERWISE, DOES NOT NECESSARILY CONSTITUTE OR  
+ 
+ 
+iii 
+CONTENTS 
+1 POSITIVE SEQUENCE MODEL OF EV CHARGERS ........................................................... 1-1 
+Introduction .......................................................................................................................... 1-1 
+Model description ................................................................................................................. 1-3 
+Simulation Results ............................................................................................................... 1-9 
+Single Bus System ......................................................................................................... 1-9 
+22500 Bus System ....................................................................................................... 1-13 
+Summary ............................................................................................................................ 1-15 
+References ......................................................................................................................... 1-15 
+A EXAMPLE DYNAMIC RECORD FOR PSLF FILE ............................................................... A-1 
+ 
+
+ 
+v 
+LIST OF FIGURES 
+Figure 1 Summary of the different EV charger responses for a voltage sag [4] ................................... 1-2 
+Figure 2 Active power control loop ................................................................................................ 1-4 
+Figure 3 Reactive power control loop ............................................................................................. 1-5 
+Figure 4 Single bus test system ...................................................................................................... 1-9 
+Figure 5 Voltage sag plot at the terminal of the load....................................................................... 1-10 
+Figure 6 Response of fraction A of EV charger to the fault (EV-B) ................................................. 1-10 
+Figure 7 Response of fraction B of EV charger to the fault (EV-D) ................................................. 1-11 
+Figure 8 Response of fraction C of EV charger to the fault (EV-F) .................................................. 1-11 
+Figure 9 Response of last fraction of EV charger to the fault (EV-A, EV-C, EV-E) ........................... 1-11 
+Figure 10 Cumulative response of the EV charger model to the fault ............................................... 1-12 
+Figure 11 Response of fraction A of EV charger to the fault (Washout block disabled) ..................... 1-12 
+Figure 12 Response of fraction B of EV charger to the fault (Washout block disabled) ...................... 1-12 
+Figure 13 Response of fraction C of EV charger to the fault (Washout block disabled) ...................... 1-13 
+Figure 14 Response of last fraction of EV charger to the fault (Washout block disabled) ................... 1-13 
+Figure 15 Cumulative response of the EV charger model to the fault (Washout block disabled) ......... 1-13 
+Figure 16  Response of the EV after a fault ................................................................................... 1-14 
+ 
+
+ 
+vii 
+LIST OF TABLES 
+Table 1 Parameter list of EV charger model .................................................................................... 1-6 
+Table 2 Output variable list of EV charger model ............................................................................ 1-8 
+ 
+
+ 
+1-1 
+1  
+POSITIVE SEQUENCE MODEL OF EV CHARGERS 
+Introduction 
+Over the next few years, rate of Electric Vehicles (EVs) sales is predicted to rapidly increase. As 
+a result, EV chargers are going to be a considerable portion of the electrical load [1,2] and their 
+aggregate response is expected to have a significant impact on the stability of the bulk electric 
+system. Therefore, there is a need to model their aggregate behavior accurately and incorporate 
+them in the bulk power system dynamic studies. In this report, a positive sequence model that 
+captures the aggregate behavior of the EV chargers is developed.  
+The impact of increased EV charger model on bulk electric system has recently started to receive 
+attention. Six different EV chargers were tested under different voltage sag conditions and a 
+simplified model for these chargers was developed in [3]. Based on this work, EV charger 
+models were used in a distribution level feeder study described in [4] to study the impact of 
+increased adoption of EV chargers on the delayed voltage recovery observed in the feeder. The 
+active power response of the six different EV charger characteristics reported in [3, 4] are shown 
+in Fig. 1. The positive sequence model developed in this work is based on the responses 
+observed and documented in [3,4], and is intended to capture the aggregated response of 
+different proportions of these chargers connected to a distribution system at the substation head. 
+The ultimate objective is to use the positive sequence model developed here for a system-wide 
+study in a transmission planning tool to identify the system wide impacts of having a significant 
+amount of EV charging loads on the grid.  
+For the purposes of development of this aggregated positive sequence model, the responses of 
+the six types of EV chargers, were categorized under 3 different categories: 
+1. EV-A, EV-C, and EV-E has a small dip in the active power consumption following the 
+fault and promptly returns to its normal operation level within 0.2s. For the purposes of 
+aggregated modeling, this dip was neglected, and the EV chargers are assumed to have a 
+constant power operation. 
+2. For (EV-D), the power consumed by the EV charger decreased during the fault and 
+reduced to zero after a time delay. It then ramped up to the pre-fault levels after a time 
+delay.  
+3. For EV-B and EV-F the active power consumption dropped at the beginning of the fault 
+and the power drawn remained zero for a set amount of time before ramping up back to 
+the pre fault levels. The duration of the cessation and the ramp rate varied between the 
+charger models.  
+The model described in the next section has been developed to capture the aggregate response at 
+the substation head of having user defined proportions of these 3 different categories of EV 
+chargers in the distribution feeder. The model has been developed for the GE-PSLF™ simulator 
+in their EPCL programming language. 
+ 
+1-2 
+It is worthwhile to mention that at this stage no information was available on the reactive power 
+consumption of these EV chargers from the reports published earlier [3, 4]. As such, it is 
+assumed that the reactive power consumption may have a dynamic behavior similar to the active 
+power consumption shown in Fig. 1. However, this topic can be revisited as more relevant data 
+becomes available. 
+ 
+Figure 1 Summary of the different EV charger responses for a voltage sag [4] 
+ 
+1-3 
+Model description  
+A detailed description of the proposed EV charger model is presented in this section. The 
+active power and reactive power output of the EV charger model can be tuned independently. 
+As mentioned in the previous section, the structures of the active and reactive power response 
+paths are similar. The only difference being the inclusion of an optional frequency-based 
+droop for active power output of the load. The block diagrams for the active and reactive 
+power consumption of this proposed model are shown in Fig. 2 and Fig 3 respectively. 
+The initial value of the active and reactive power input into the block P0 and Q0 are taken from the 
+power flow solution during the initialization of the model.  
+Brief descriptions of each of the control blocks are as follows:  
+1. The voltage magnitude at the terminal of the model (𝑉𝑉𝑉𝑉) is measured at each time step and 
+passed through a washout block. The washout block can be deactivated as needed by setting 
+the value of Tvp to 0. 
+2. An optional frequency based active power droop logic is also included in this model. This 
+can be activated or deactivated by setting a suitable value of the droop gain Kdroop 
+3. A lead lag compensator is included to adjust the transient response of the model.  
+4. This model represents the aggregate response of different types of EV chargers at a feeder/ 
+substation level. To account for the different responses of individual EV chargers in an 
+aggregated model, the model allows the user to specify different fractions (FrA, FrB, FrC) 
+to simulate different characteristics as described in the previous section. The different 
+characteristics can be created by parameterizing the control logic (described in bullet 7) 
+appropriately. 
+5. The parameters nPA/nQa, nPB/nQB, nPC/nQC, and nPD/nQD of each fraction are used to 
+specify the dependence of active and reactive power consumption of the load with voltage 
+variations as constant power, constant current, or constant impedance. 
+6. Block 6 converts the active/reactive power to a current quantity that can compared against 
+the limits. 
+7. Current limiters are included for each of these fractions to ensure that the current 
+consumption does not exceed a specified value even with a constant power behavior. Also 
+note that a load convention has been used for this model, which means that a positive value 
+of current means the device consuming current and a negative value implies that the device 
+is injecting current. 
+8. The control logic ensures that if the voltage drops below Vcease for Tcease s, the respective 
+fraction (Fcease) of the EV charger load ceases to consume active power after a delay of 
+Tdelay s. The Tdelay s term has been added to emulate the delay that EV chargers may have 
+before they cease to charge. If the voltage recovers above Vreconnect for Treconnect seconds, 
+the active power consumption is ramped to the nominal value in Tramp seconds. 
+9. The last transfer function with a time constant of Tnum has been included to ensure 
+numerical stability. The value of Tnum is hardcoded to 4*delt. Hence, if a user chose a 
+simulation time step of 0.0042s this time constant is automatically set to 0.0168s. 
+ 
+1-4 
+ 
+ 
+Figure 2 Active power control loop 
+ 
+1-5 
+ 
+Figure 3 Reactive power control loop 
+ 
+1-6 
+The parameter/variable list and typical values for this model is tabulated in Table 1.  
+Table 1 Parameter list of EV charger model 
+Parameter Parameter Description Suggested 
+Default 
+Tr Voltage measurement time constant (s) 0.02 
+kdroop Frequency droop gain 0 
+deadband Deadband on frequency response 999 
+Kvp Active power washout (Proportional constant) 0.2 
+Tvp Active power washout (Time constant) (s) 0.02 
+Kvq Reactive power washout (Proportional constant) 0.16 
+Tvq Reactive power washout (Time constant) (s) 0.02 
+Ta Lead time constant (s) 0.5 
+Tb Lag time constant (s) 0.1 
+FrA Fraction of Type A Evs 0.2 
+FrB Fraction of Type B Evs 0.2 
+FrC Fraction of Type C Evs 0.2 
+nPA Active Power Exponential (FrA) 0 
+nQA Reactive Power Exponential (FrA) 1 
+nPB Active Power Exponential (FrB) 0 
+nQB Reactive Power Exponential (FrB) 1 
+nPC Active Power Exponential (FrC) 0 
+nQC Reactive Power Exponential (FrC) 1 
+nPD Active Power Exponential (FrD) 0 
+ 
+1-7 
+nQD Reactive Power Exponential (FrD) 1 
+fcA fraction of EV that will cease (FrA) 1 
+vcA Voltage threshold for cease logic (FrA) (pu) 0.5 
+tcA Time delay for cease logic to be initiated (FrA) (s) 0.01 
+tdelayA  Time delay to cease after detection (FrA) (s)  0.0 
+vrA Voltage threshold to initiate power ramp logic (FrA) 
+(pu) 
+0.6 
+trA Time delay for ramp up logic to be initiated (FrA) 
+(s) 
+0.05 
+trampA Ramp up time (FrA) (s) 1 
+fcB fraction of EV that will cease (FrB) 1 
+vcB Voltage threshold for cease logic (FrB) (pu) 0.5 
+tcB Time delay for cease logic to be initiated (FrB) (s) 0.01 
+tdelayB  Time delay to cease after detection (FrB) (s)  0.0 
+vrB Voltage threshold to initiate ramp logic (FrB) (pu) 0.6 
+trB Time delay for ramp up logic to be initiated (FrB) 
+(s) 
+0.05 
+trampB Ramp up time (FrB) (s) 1 
+fcC fraction of EV that will cease (FrC) 1 
+vcC Voltage threshold for cease logic (FrC) (pu) 0.5 
+tcC Time delay for cease logic to be initiated (FrC) (s) 0.01 
+tdelayC  Time delay to cease after detection (FrC) (s)  0.0 
+vrC Voltage threshold to initiate ramp logic (FrC) (pu) 0.6 
+ 
+1-8 
+trC Time delay for ramp up logic to be initiated (FrC) 
+(s) 
+0.05 
+trampC Ramp up time (FrC) (s) 1 
+ipmin minimum Ip (pu) 0 
+ipmax maximum Ip (pu) 1.0 
+iqmin minimum Iq (pu) 0 
+iqmax maximum Iq (pu) 0.66 
+ 
+The output variables of the model are listed in Table  
+Table 2 Output variable list of EV charger model 
+Output Variable Name  Description 
+Pout Cumulative Active Power Output (MW) 
+Qout Cumulative Reactive Power Output 
+(Mvar) 
+PfrA Fraction A Active Power Output (MW) 
+QfrA Fraction A Reactive Power Output (Mvar) 
+PfrB Fraction B Active Power Output (MW) 
+QfrB Fraction B Reactive Power Output (Mvar) 
+PfrC Fraction C Active Power Output (MW) 
+QfrC Fraction C Reactive Power Output (Mvar) 
+PfrD Fraction D Active Power Output (MW) 
+QfrD Fraction D Reactive Power Output (Mvar) 
+IPfA Fraction A Active Current Component 
+(pu) 
+IQfA Fraction A Reactive Current Component 
+(pu) 
+IPfB Fraction B Active Current Component 
+(pu) 
+ 
+1-9 
+IQfB Fraction B Reactive Current Component 
+(pu) 
+IPfC Fraction C Active Current Component 
+(pu) 
+IQfr Fraction C Reactive current Component 
+(pu) 
+IPfD Fraction D Active Current Component 
+(pu) 
+IQfD Fraction D Reactive Current Component 
+(pu) 
+FRA  Portion of Fraction A that did not cease 
+FRB  Portion of Fraction B that did not cease  
+FRC  Portion of Fraction C that did not cease  
+Vmea Measured voltage (pu) 
+ 
+Simulation Results 
+Single Bus System 
+The first set of simulation is conducted using the GE PSLF™ simulator with a simple setup 
+shown in Fig.  4 to test the dynamic performance of the EV charger model. The EV charger 
+model is parameterized to replicate the response shown in Fig 1 and the parameters are given in 
+Appendix A. The total active power consumed by this EV charger model is 21 kW. The active 
+power load of individual fractions A, B, C, D are 3.2, 3.8, 3.6, and 10.4 kW respectively.  Here, 
+the play in voltage is the single source and so the response observed is that of the EV charger 
+model alone. The same tests conducted in [4] (see Fig 1) is reproduced by reducing the voltage at 
+terminal to 50% for 9 cycles as shown in Fig. 5. The response of each of the fractions is shown in 
+Fig. 6, Fig. 7, Fig. 8 and Fig. 9. Note that, the plots on the left in each of the figures are the 
+zoomed in sections near the fault for the plots on the right. 
+ 
+Figure 4 Single bus test system 
+ 
+ 
+1-10 
+ 
+Figure 5 Voltage sag plot at the terminal of the load 
+• Fraction A replicates the behavior exhibited by EV-B chargers.  The load reduces to zero 
+(stops charging) right after the voltage drops and remains zero till about 13s as shown in 
+Fig. 6. It then ramps up to the pre fault levels by 17.5s as shown in Fig. 6. 
+•  Fraction B is used to represent EV-D type chargers that decreased their power 
+consumption during the fault before reducing to zero after a time delay as shown in Fig. 
+7. Similar to the previous case, the active power is ramped after a set time delay of 8s.  
+•  Fraction C response replicated EV-F type and is similar to Fraction A with smaller value 
+of restart time and a faster ramp rate as shown in Fig. 8. 
+•  EV chargers (EV-A, EV-C, EV-E) that behaved similar to a constant power load were 
+modeled using the last fraction. Their response during voltage sag event is shown in Fig. 
+9. Please note there are small spikes in the active power output right after the fault is 
+initiated and once when the fault is cleared. This is due to the delay introduced due to the 
+numerical low pass filter. 
+The cumulative response is shown in Fig. 10. The dynamic model with parameters is 
+included in the Appendix. A 
+ 
+Figure 6 Response of fraction A of EV charger to the fault (EV-B) 
+ 
+1-11 
+ 
+Figure 7 Response of fraction B of EV charger to the fault (EV-D) 
+ 
+ Figure 8 Response of fraction C of EV charger to the fault (EV-F) 
+ 
+ 
+Figure 9 Response of last fraction of EV charger to the fault (EV-A, EV-C, EV-E) 
+ 
+1-12 
+       
+Figure 10 Cumulative response of the EV charger model to the fault 
+Key observations 
+• No numerical instability was observed due to the EV dynamic models during the simulation  
+• A single model EV charger model can replicate multiple distinct responses measured 
+during experimentation and thus can be used to model aggregate response of EV chargers.  
+ 
+Another simulation study was done with the washout block disabled to check the numerical 
+stability of the model. The response of each of the fractions is shown in Fig. 11, Fig. 12, Fig. 13, 
+and Fig. 14 and their cumulative response is shown in Fig. 15. The simulation was stable and no 
+significant change in response was noticed.  
+ 
+Figure 11 Response of fraction A of EV charger to the fault (Washout block disabled) 
+ 
+Figure 12 Response of fraction B of EV charger to the fault (Washout block disabled) 
+ 
+1-13 
+ 
+Figure 13 Response of fraction C of EV charger to the fault (Washout block disabled) 
+ 
+Figure 14 Response of last fraction of EV charger to the fault (Washout block disabled) 
+       
+Figure 15 Cumulative response of the EV charger model to the fault (Washout block disabled) 
+22500 Bus System 
+The single bus system demonstrated capability of the EV charger model. In this section the 
+scalability of the model for use in a practical transmission planning study and its numerical stability 
+has been tested. 
+Simulation studies were conducted on a test system comparable to the size of the WECC system 
+using the GE PSLF™ simulator. The test system contains 22500 buses and 3110 generators, 6410 
+instances of composite load models are present and account for 132 GW of total load.  
+ 
+ 
+1-14 
+For creating Scenario: 
+• Commercial and mixed feeder type buses with CMLD load in select zones were 
+identified to incorporate EV charger models 
+•  A new load was added in the power flow file to these buses to represent the EV charger 
+loads 
+• The entire motor A load fraction and 50% of existing electronic load of CMLD was 
+transferred to the new load ensuring that the total magnitude of the two loads on the bus 
+was unchanged from the base case (this was done to create a portion of EV load and has 
+no other meaning. The same could be done by reducing any other load component) 
+• The fraction of motor B, C, D was changed in the CMLD model accordingly so that the 
+magnitude of each of these portions remained unchanged from the base case 
+• 1160 instances of EV charger load models were included for the simulation. 
+• Uniform parameters specified in Appendix A were used for all the EV charger load models. 
+Single Line to ground fault was applied at 345 kV line and cleared after 6 cycles and the response 
+of the EV charger models at 40 buses is shown in Fig. 16.  
+ 
+Figure 16  Response of the EV after a fault 
+Key observations 
+• No numerical instability was observed due to the EV dynamic models during the simulation  
+• 40 EV models were affected by the low voltage and the output of the EV ceased and ramped 
+based on the parameters 
+ 
+1-15 
+Summary 
+A positive sequence model for simulating the aggregate behavior of EV chargers in dynamic 
+response studies was developed in the PSLF simulator platform. The capability of the model to 
+replicate distinct behavior observed in EV chargers was verified using a single bus test system. 
+Furthermore, the numerical robustness and scalability of the model was verified using a 22500-
+bus test system.  
+ 
+References 
+[1] Technical update on load modeling’. Technical Report 3002013562, EPRI, Palo Alto, 
+CA, 2018 
+[2] Jenn A, Highleyman J. Distribution grid impacts of electric vehicles: A California case 
+study. iScience. 2021 Dec 28;25(1):103686. doi: 10.1016/j.isci.2021.103686. PMID: 
+35036872; PMCID: PMC8749456. 
+[3] “Simplified Model of PEV Charging During a Voltage Sag.” Idaho National Laboratory 
+as document number INL/EXT-19-55665 
+[4] Tuffner, Francis K., Undrill, John, Scoffield, Don, Eto, Joseph H., Kosterev, Dmitry, and 
+Quint, Ryan D. Distribution-Level Impacts of Plug-in Electric Vehicle Charging on the 
+Transmission System during Fault Conditions. United States: N. p., 2021. Web. 
+doi:10.2172/1832905. 
+  
+
+ 
+A-1 
+A  
+EXAMPLE DYNAMIC RECORD FOR PSLF FILE 
+epcmod  2 "Bus2 " 69.0 "1 " : #21 "EV_Chrg.p" 7.0 "Tr" 0.02 "Kvp" 0.20 "deadband" 0.017 
+"kdroop" 0 "Tvp"  0.02  "Kvq" 0.16  "Tvq" 0.02  "Ta" 0.1 "Tb" 0.2  "FrA" 0.1524  "FrB" 0.1714  
+"FrC" 0.1810  "nPA" 0.0  "nQA" 0.0   "nPB" 1.0  "nQB" 1.0  "nPC" 0.0  "nQC" 0.0  "nPD" 0.0  
+"nQD" 0.0   "fcA" 1.0  "vcA" 0.6  "tcA" 0.005 "tdelayA" 0.005 "vrA" 0.6  "trA" 8.0  "trampA" 
+5.0  "fcB" 1.0  "vcB" 0.7  "tcB" 0.12 "tdelayB" 0.005  "vrB" 0.6  "trB" 3.0  "trampB" 3.0   "fcC" 
+1.0  "vcC" 0.6  "tcC" 0.01 "tdelayC" 0.005  "vrC" 0.6  "trC" 1.0  "trampC" 1.0  "ipmax" 2.0 
+"ipmin" -2.0   "iqmax" 2.0 "iqmin" -2.0 
+ 
+ 
+Note: EPCL model EV_Chrg.p is available as a separate attachment.  
+ 
+ 
+EPRI 
+3420 Hillview Avenue, Palo Alto, California 94304-1338 • USA 
+800.313.3774 • 650.855.2121 • askepri@epri.com • www.epri.com 
+Export Control Restrictions 
+Access to and use of this EPRI product is 
+granted with the specific understanding and 
+requirement that responsibility for ensuring 
+full compliance with all applicable U.S. and 
+foreign export laws and regulations is being undertaken by 
+you and your company. This includes an obligation to ensure 
+that any individual receiving access hereunder who is not a 
+U.S. citizen or U.S. permanent resident is permitted access 
+under applicable U.S. and foreign export laws and 
+regulations. 
+ 
+In the event you are uncertain whether you or your company 
+may lawfully obtain access to this EPRI product, you 
+acknowledge that it is your obligation to consult with your 
+company’s legal counsel to determine whether this access is 
+lawful. Although EPRI may make available on a case by case 
+basis an informal assessment of the applicable U.S. export 
+classification for specific EPRI products, you and your 
+company acknowledge that this assessment is solely for 
+informational purposes and not for reliance purposes. 
+  
+Your obligations regarding U.S. export control requirements 
+apply during and after you and your company’s engagement 
+with EPRI. To be clear, the obligations continue after your 
+retirement or other departure from your company, and 
+include any knowledge retained after gaining access to EPRI 
+products.  
+  
+You and your company understand and acknowledge your 
+obligations to make a prompt report to EPRI and the 
+appropriate authorities regarding any access to or use of this 
+EPRI product hereunder that may be in violation of applicable 
+U.S. or foreign export laws or regulations. 
+About EPRI 
+Founded in 1972, EPRI is the world's preeminent 
+independent, non-profit energy research and 
+development organization, with offices around the 
+world. EPRI's trusted experts collaborate with more 
+than 450 companies in 45 countries, driving 
+innovation to ensure the public has clean, safe, 
+reliable, affordable, and equitable access to 
+electricity across the globe. Together, we are 
+shaping the future of energy. 
+© 2022 Electric Power Research Institute (EPRI), Inc. All rights reserved. 
+Electric Power Research Institute, EPRI, and TOGETHER…SHAPING THE 
+FUTURE OF ENERGY are registered marks of the Electric Power Research 
+Institute, Inc. in the U.S. and worldwide. 3002xxxxxx 
+ 
